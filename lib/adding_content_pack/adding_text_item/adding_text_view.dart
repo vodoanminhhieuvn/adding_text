@@ -13,6 +13,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   Color color = Colors.green;
 
   double textSize = 16;
+  Offset offset = const Offset(0, 0);
+  double scale = 1;
 
   late Offset leftTopOffset;
   late Offset leftBottomOffset;
@@ -36,13 +38,30 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    textSize += details.delta.dx / 5;
-
     setState(() {});
+  }
+
+  Size sizeOfText(String text, TextStyle style) {
+    final TextPainter textPainter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        maxLines: 1,
+        textDirection: TextDirection.ltr)
+      ..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size;
   }
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    Size sizeText = sizeOfText(
+        'Hello, world',
+        TextStyle(
+          color: Colors.black,
+          fontSize: textSize,
+        ));
+    double offsetX = screenSize.width / 2 - sizeText.width / 2;
+    double offsetY = screenSize.height / 2 - sizeText.height / 2;
+
     return Column(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -60,6 +79,10 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                       painter: MyPainter(
                     context: context,
                     textSize: textSize,
+                    startOffset: Offset(offsetX, offsetY),
+                    translate: Offset(30, 0),
+                    rotateAngle: 0,
+                    scaleFactor: 2,
                   )))),
         ),
       ],

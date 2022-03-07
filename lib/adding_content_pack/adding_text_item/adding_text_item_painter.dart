@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class MyPainter extends CustomPainter {
   Function(String)? setState;
   ValueChanged<Offset>? expand;
   final BuildContext context;
+  final Offset startOffset;
+  final Offset translate;
+  final double scaleFactor;
+  final double rotateAngle;
   double textSize;
 
   MyPainter({
     required this.context,
     this.setState,
     this.expand,
+    required this.startOffset,
+    required this.translate,
+    required this.rotateAngle,
     required this.textSize,
+    required this.scaleFactor,
   });
 
   @override
@@ -37,7 +46,7 @@ class MyPainter extends CustomPainter {
       fontSize: textSize,
     );
     final textSpan = TextSpan(
-      text: 'Hello, world.',
+      text: 'Hello, world',
       style: textStyle,
     );
     final textPainter = TextPainter(
@@ -48,20 +57,27 @@ class MyPainter extends CustomPainter {
       minWidth: 0,
       maxWidth: size.width,
     );
-    final xCenter = (size.width - textPainter.width) / 2;
-    final yCenter = (size.height - textPainter.height) / 2;
-    final offset = Offset(xCenter, yCenter);
+    final xCenter = size.width / 2;
+    final yCenter = size.height / 2;
 
     // canvas.save();
-    // canvas.scale(1.4);
+    scaleWithCenter(canvas, xCenter, yCenter, scaleFactor);
+    rotateWithCenter(canvas, xCenter, yCenter, rotateAngle);
+    canvas.translate(translate.dx, translate.dy);
 
-    textPainter.paint(canvas, offset / 1.4);
+    textPainter.paint(canvas, startOffset);
     // canvas.restore();
   }
 
-  void rotate(Canvas canvas, double cx, double cy, double angleRadians) {
+  void rotateWithCenter(Canvas canvas, double cx, double cy, double angleRadians) {
     canvas.translate(cx, cy);
     canvas.rotate(angleRadians);
+    canvas.translate(-cx, -cy);
+  }
+
+  void scaleWithCenter(Canvas canvas, double cx, double cy, double scale) {
+    canvas.translate(cx, cy);
+    canvas.scale(scale);
     canvas.translate(-cx, -cy);
   }
 
