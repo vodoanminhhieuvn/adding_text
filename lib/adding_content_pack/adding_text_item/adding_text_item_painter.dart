@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class MyPainter extends CustomPainter {
   Function(String)? setState;
@@ -60,16 +59,16 @@ class MyPainter extends CustomPainter {
     final xCenter = size.width / 2;
     final yCenter = size.height / 2;
 
-    // canvas.save();
+    canvas.translate(translate.dx, translate.dy);
     scaleWithCenter(canvas, xCenter, yCenter, scaleFactor);
     rotateWithCenter(canvas, xCenter, yCenter, rotateAngle);
-    canvas.translate(translate.dx, translate.dy);
 
     textPainter.paint(canvas, startOffset);
     // canvas.restore();
   }
 
-  void rotateWithCenter(Canvas canvas, double cx, double cy, double angleRadians) {
+  void rotateWithCenter(
+      Canvas canvas, double cx, double cy, double angleRadians) {
     canvas.translate(cx, cy);
     canvas.rotate(angleRadians);
     canvas.translate(-cx, -cy);
