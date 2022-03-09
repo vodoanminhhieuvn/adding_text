@@ -54,24 +54,21 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     if (_currentTextEditingAction == TextEditingAction.move) {
       _currenTextPos = _currenTextPos! + details.delta;
     } else {
-      print(details.delta.dy);
-      angle += details.delta.dy / 2;
-      // var newTextFontSize = textSize + details.delta.dx / 5;
-      //
-      // var newTextSize =
-      //     _textSize(textString, TextStyle(fontSize: newTextFontSize));
-      // var currentTextSize =
-      //     _textSize(textString, TextStyle(fontSize: textSize));
-      //
-      // var xRemainder = (newTextSize.width - currentTextSize.width) / 2;
-      // var yRemainder = (newTextSize.height - currentTextSize.height) / 2;
-      //
-      // _currenTextPos = Offset(
-      //     _currenTextPos!.dx - xRemainder, _currenTextPos!.dy - yRemainder);
-      //
-      // textSize = newTextFontSize;
+      var newTextFontSize = textSize + details.delta.dx / 5;
+
+      var newTextSize =
+          _textSize(textString, TextStyle(fontSize: newTextFontSize));
+      var currentTextSize =
+          _textSize(textString, TextStyle(fontSize: textSize));
+
+      var xRemainder = (newTextSize.width - currentTextSize.width) / 2;
+      var yRemainder = (newTextSize.height - currentTextSize.height) / 2;
+
+      _currenTextPos = Offset(
+          _currenTextPos!.dx - xRemainder, _currenTextPos!.dy - yRemainder);
+
+      textSize = newTextFontSize;
     }
-    // _currentTextEditingAction = TextEditingAction.none;
 
     setState(() {});
   }
