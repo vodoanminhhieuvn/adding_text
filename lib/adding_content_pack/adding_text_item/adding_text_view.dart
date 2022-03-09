@@ -11,15 +11,30 @@ class Screen1 extends StatefulWidget {
 
 class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   Color color = Colors.green;
-
+  String textString = 'Hello, world.';
   double textSize = 16;
+  double angle = 90;
 
-  late Offset leftTopOffset;
-  late Offset leftBottomOffset;
-  late Offset rightTopOffset;
-  late Offset rightBottomOffset;
+  TextEditingAction _currentTextEditingAction = TextEditingAction.none;
+
+  Offset? _currenTextPos;
+  Offset? _currentTopLeftPos;
+  Offset? _currentTopRightPos;
+  Offset? _currentBottomRightPos;
 
   void _onDragDown(DragDownDetails details) {
+    var touchX = details.localPosition.dx;
+    var touchY = details.localPosition.dy;
+
+    print("Positioned touch: $touchX : $touchY");
+
+    if (touchX > _currentTopLeftPos!.dx &&
+        touchX < _currentTopRightPos!.dx &&
+        touchY > _currentTopRightPos!.dy &&
+        touchY < _currentBottomRightPos!.dy) {
+      _currentTextEditingAction = TextEditingAction.move;
+    }
+
     // var touchX = details.localPosition.dx;
     // var touchY = details.localPosition.dy;
     //
@@ -36,9 +51,38 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    textSize += details.delta.dx / 5;
+    if (_currentTextEditingAction == TextEditingAction.move) {
+      _currenTextPos = _currenTextPos! + details.delta;
+    } else {
+      print(details.delta.dy);
+      angle += details.delta.dy / 2;
+      // var newTextFontSize = textSize + details.delta.dx / 5;
+      //
+      // var newTextSize =
+      //     _textSize(textString, TextStyle(fontSize: newTextFontSize));
+      // var currentTextSize =
+      //     _textSize(textString, TextStyle(fontSize: textSize));
+      //
+      // var xRemainder = (newTextSize.width - currentTextSize.width) / 2;
+      // var yRemainder = (newTextSize.height - currentTextSize.height) / 2;
+      //
+      // _currenTextPos = Offset(
+      //     _currenTextPos!.dx - xRemainder, _currenTextPos!.dy - yRemainder);
+      //
+      // textSize = newTextFontSize;
+    }
+    // _currentTextEditingAction = TextEditingAction.none;
 
     setState(() {});
+  }
+
+  Size _textSize(String text, TextStyle style) {
+    final TextPainter textPainter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        maxLines: 1,
+        textDirection: TextDirection.ltr)
+      ..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size;
   }
 
   @override
@@ -51,6 +95,10 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
           child: GestureDetector(
               onPanDown: _onDragDown,
               onPanUpdate: _onPanUpdate,
+              onPanEnd: (DragEndDetails details) {
+                _currentTextEditingAction = TextEditingAction.none;
+                setState(() {});
+              },
               child: AnimatedContainer(
                   duration: const Duration(seconds: 1),
                   color: color,
@@ -58,15 +106,44 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                   height: MediaQuery.of(context).size.height,
                   child: CustomPaint(
                       painter: MyPainter(
-                    context: context,
-                    textSize: textSize,
-                  )))),
+                          context: context,
+                          textSize: textSize,
+                          angle: angle,
+                          currentTextPos: _currenTextPos,
+                          currentTopLeftOnChanged: (Offset currentTopLeftPos) {
+                            _currentTopLeftPos = currentTopLeftPos;
+
+                            if (!mounted) {
+                              setState(() {});
+                            }
+                          },
+                          currentTopRightOnChanged:
+                              (Offset currentTopRightPos) {
+                            _currentTopRightPos = currentTopRightPos;
+                            if (!mounted) {
+                              setState(() {});
+                            }
+                          },
+                          currentBottomRightOnChanged:
+                              (Offset currentBottomRightPos) {
+                            _currentBottomRightPos = currentBottomRightPos;
+                            if (!mounted) {
+                              setState(() {});
+                            }
+                          },
+                          currentTextPosOnChanged: (Offset currentTextPos) {
+                            _currenTextPos = currentTextPos;
+
+                            if (!mounted) {
+                              setState(() {});
+                            }
+                          })))),
         ),
       ],
     );
   }
 }
 
-enum TextEditingAction { rotate, scale, delete }
+enum TextEditingAction { rotate, scale, delete, move, none }
 
 enum TextState { flip, rotate }
